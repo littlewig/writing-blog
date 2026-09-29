@@ -39,6 +39,9 @@ const res = await fetch(FEED_URL);
 if (!res.ok) throw new Error(`Feed request failed: ${res.status}`);
 const xml = await res.text();
 
+const channel = xml.slice(0, xml.indexOf("<item>"));
+const siteTitle = getTag(channel, "title");
+
 const items = xml.match(/<item>[\s\S]*?<\/item>/g) || [];
 const posts = items
   .map((item) => {
@@ -53,5 +56,5 @@ const posts = items
   })
   .sort((a, b) => b.date.localeCompare(a.date));
 
-await writeFile(OUT_FILE, JSON.stringify(posts, null, 2) + "\n");
-console.log(`Wrote ${posts.length} posts to posts.json`);
+await writeFile(OUT_FILE, JSON.stringify({ title: siteTitle, posts }, null, 2) + "\n");
+console.log(`Wrote ${posts.length} posts from "${siteTitle}" to posts.json`);

@@ -1,5 +1,5 @@
 const app = document.getElementById("app");
-const SITE_TITLE = document.title;
+let siteTitle = document.title;
 
 const monthDay = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
 const fullDate = new Intl.DateTimeFormat("en-US", {
@@ -23,7 +23,7 @@ function readingTime(html) {
 }
 
 function renderIndex() {
-  document.title = SITE_TITLE;
+  document.title = siteTitle;
 
   const table = el("table", { className: "index" });
   table.append(
@@ -78,7 +78,7 @@ function renderIndex() {
 }
 
 function renderPost(post) {
-  document.title = `${post.title} — ${SITE_TITLE}`;
+  document.title = `${post.title} — ${siteTitle}`;
   const i = posts.indexOf(post);
   const newer = posts[i - 1];
   const older = posts[i + 1];
@@ -125,7 +125,12 @@ async function init() {
   try {
     const res = await fetch("posts.json", { cache: "no-store" });
     if (!res.ok) throw new Error(`posts.json: ${res.status}`);
-    posts = await res.json();
+    const data = await res.json();
+    posts = data.posts;
+    if (data.title) {
+      siteTitle = data.title;
+      document.querySelector(".site-header h1 a").textContent = siteTitle;
+    }
     if (posts.length === 0) {
       app.innerHTML = '<p class="status">No posts yet.</p>';
       return;
