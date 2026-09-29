@@ -4,7 +4,8 @@
 import { writeFile } from "node:fs/promises";
 
 const FEED_URL = "https://buttondown.com/caseyc/rss";
-const OUT_FILE = new URL("../posts.json", import.meta.url);
+const POSTS_FILE = new URL("../posts.json", import.meta.url);
+const SITE_FILE = new URL("../site.json", import.meta.url);
 
 function decodeEntities(str) {
   return str
@@ -56,5 +57,7 @@ const posts = items
   })
   .sort((a, b) => b.date.localeCompare(a.date));
 
-await writeFile(OUT_FILE, JSON.stringify({ title: siteTitle, posts }, null, 2) + "\n");
+// posts.json stays a plain array so cached copies of older app.js can still read it.
+await writeFile(POSTS_FILE, JSON.stringify(posts, null, 2) + "\n");
+await writeFile(SITE_FILE, JSON.stringify({ title: siteTitle }, null, 2) + "\n");
 console.log(`Wrote ${posts.length} posts from "${siteTitle}" to posts.json`);

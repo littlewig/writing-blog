@@ -121,16 +121,27 @@ function route() {
   else renderIndex();
 }
 
+async function loadSiteTitle() {
+  try {
+    const res = await fetch("site.json", { cache: "no-store" });
+    if (!res.ok) return;
+    const { title } = await res.json();
+    if (!title) return;
+    document.title = document.title.replace(siteTitle, title);
+    siteTitle = title;
+    document.querySelector(".site-header h1 a").textContent = title;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 async function init() {
   try {
     const res = await fetch("posts.json", { cache: "no-store" });
     if (!res.ok) throw new Error(`posts.json: ${res.status}`);
     const data = await res.json();
-    posts = data.posts;
-    if (data.title) {
-      siteTitle = data.title;
-      document.querySelector(".site-header h1 a").textContent = siteTitle;
-    }
+    posts = Array.isArray(data) ? data : data.posts;
+    loadSiteTitle();
     if (posts.length === 0) {
       app.innerHTML = '<p class="status">No posts yet.</p>';
       return;

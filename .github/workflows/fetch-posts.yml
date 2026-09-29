@@ -22,12 +22,12 @@ jobs:
       - run: node scripts/fetch-posts.mjs
       - name: Commit if changed
         run: |
-          if git diff --quiet -- posts.json; then
+          if git diff --quiet -- posts.json site.json; then
             echo "No new posts"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
-          git add posts.json
+          git add posts.json site.json
           git commit -m "Update posts from Buttondown"
           git push
